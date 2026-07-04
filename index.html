@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhythm of the Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,400;1,500&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#132921;
+    --bg-deep-2:#0d1f19;
+    --parchment:#efe7d6;
+    --parchment-dim:#e3d9c2;
+    --moss:#587a5c;
+    --moss-light:#7f9c78;
+    --sage:#a9c19a;
+    --amber:#c99a4b;
+    --amber-soft:#e0bd7c;
+    --bark:#5c4632;
+    --ink:#1c2b22;
+    --line: rgba(239,231,214,0.14);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(88,122,92,0.18), transparent 55%),
+      radial-gradient(ellipse at 85% 30%, rgba(201,154,75,0.10), transparent 50%),
+      var(--bg-deep);
+    color:var(--parchment);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* grain texture overlay */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    opacity:0.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:64px 24px 120px;
+    position:relative;
+    z-index:2;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    text-align:center;
+    margin-bottom:56px;
+  }
+  .eyebrow{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:400;
+    letter-spacing:0.08em;
+    color:var(--amber-soft);
+    font-size:15px;
+    margin-bottom:14px;
+  }
+  .eyebrow::before, .eyebrow::after{
+    content:"◦";
+    color:var(--moss-light);
+    margin:0 10px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:clamp(38px, 6vw, 56px);
+    line-height:1.05;
+    color:var(--parchment);
+    margin-bottom:16px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{
+    font-style:italic;
+    font-weight:400;
+    color:var(--sage);
+  }
+  .sub{
+    font-size:16px;
+    color:var(--parchment-dim);
+    max-width:440px;
+    margin:0 auto;
+    line-height:1.6;
+    opacity:0.85;
+  }
+
+  /* ---------- TOGGLE ---------- */
+  .toggle-row{
+    display:flex;
+    justify-content:center;
+    margin:40px 0 8px;
+  }
+  .toggle{
+    display:inline-flex;
+    background:rgba(239,231,214,0.06);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:5px;
+    gap:4px;
+  }
+  .toggle button{
+    font-family:'Fraunces', serif;
+    font-size:14.5px;
+    letter-spacing:0.03em;
+    padding:10px 26px;
+    border-radius:999px;
+    border:none;
+    background:transparent;
+    color:var(--parchment-dim);
+    cursor:pointer;
+    transition:all 0.35s ease;
+  }
+  .toggle button.active{
+    background:linear-gradient(135deg, var(--moss), #45613f);
+    color:#fbf7ec;
+    box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  }
+
+  .meta-row{
+    display:flex;
+    justify-content:center;
+    gap:28px;
+    margin:26px 0 54px;
+    flex-wrap:wrap;
+  }
+  .meta-item{
+    text-align:center;
+  }
+  .meta-item .num{
+    font-family:'Fraunces', serif;
+    font-size:26px;
+    color:var(--amber-soft);
+    display:block;
+  }
+  .meta-item .lbl{
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--parchment-dim);
+    opacity:0.7;
+  }
+
+  /* ---------- LEGEND ---------- */
+  .legend{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:50px;
+    font-size:12.5px;
+    color:var(--parchment-dim);
+  }
+  .legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .dot{
+    width:9px; height:9px;
+    border-radius:50%;
+    display:inline-block;
+  }
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{
+    position:relative;
+    padding-left:34px;
+  }
+  .vine{
+    position:absolute;
+    left:9px;
+    top:6px;
+    bottom:6px;
+    width:2px;
+    background:linear-gradient(to bottom, var(--moss-light), var(--moss) 40%, var(--bark) 85%, transparent);
+    opacity:0.55;
+  }
+
+  .block{
+    position:relative;
+    margin-bottom:14px;
+    opacity:0;
+    transform:translateY(10px);
+    animation:rise 0.5s ease forwards;
+  }
+  @keyframes rise{ to{opacity:1; transform:translateY(0);} }
+
+  .node{
+    position:absolute;
+    left:-34px;
+    top:18px;
+    width:11px; height:11px;
+    border-radius:50%;
+    border:2px solid var(--bg-deep);
+    box-shadow:0 0 0 2px currentColor;
+  }
+
+  .card{
+    background:rgba(239,231,214,0.045);
+    border:1px solid var(--line);
+    border-left:3px solid transparent;
+    border-radius:10px;
+    padding:16px 20px;
+    display:flex;
+    align-items:baseline;
+    gap:18px;
+    transition:background 0.25s ease, transform 0.25s ease;
+  }
+  .card:hover{
+    background:rgba(239,231,214,0.075);
+    transform:translateX(3px);
+  }
+  .time{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:14.5px;
+    color:var(--amber-soft);
+    white-space:nowrap;
+    min-width:112px;
+  }
+  .activity{
+    font-size:15px;
+    color:var(--parchment);
+    flex:1;
+  }
+  .dur{
+    font-size:11.5px;
+    color:var(--parchment-dim);
+    opacity:0.6;
+    white-space:nowrap;
+    font-variant:small-caps;
+  }
+
+  /* category colors */
+  .cat-run    { color:#e0bd7c; } .cat-run .card{border-left-color:#c99a4b;}
+  .cat-workout{ color:#e0bd7c; } .cat-workout .card{border-left-color:#c99a4b;}
+  .cat-care   { color:#a9c19a; } .cat-care .card{border-left-color:#7f9c78;}
+  .cat-study  { color:#7f9c78; } .cat-study .card{border-left-color:#587a5c;}
+  .cat-break  { color:#8f8a78; } .cat-break .card{border-left-color:#8f8a78; opacity:0.85;}
+  .cat-meal   { color:#b98a5e; } .cat-meal .card{border-left-color:#8a6142;}
+  .cat-class  { color:#c98f6b; } .cat-class .card{border-left-color:#a9633a;}
+  .cat-rest   { color:#9fb0c9; } .cat-rest .card{border-left-color:#6f83a0;}
+  .cat-leisure{ color:#d6a3c9; } .cat-leisure .card{border-left-color:#a9709c;}
+  .cat-sleep  { color:#7a8fb8; } .cat-sleep .card{border-left-color:#4d5f85;}
+
+  /* ---------- QUOTE LEAF ---------- */
+  .quote-block{
+    position:relative;
+    margin:30px 0 34px;
+    padding-left:0;
+  }
+  .quote-card{
+    margin-left:34px;
+    background:linear-gradient(135deg, rgba(201,154,75,0.10), rgba(88,122,92,0.06));
+    border:1px solid rgba(201,154,75,0.28);
+    border-radius:14px;
+    padding:22px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  .quote-card::before{
+    content:"❝";
+    position:absolute;
+    top:-6px; left:14px;
+    font-size:56px;
+    font-family:'Fraunces', serif;
+    color:rgba(201,154,75,0.18);
+    line-height:1;
+  }
+  .quote-text{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:17px;
+    line-height:1.5;
+    color:var(--amber-soft);
+    position:relative;
+    z-index:1;
+  }
+  .quote-author{
+    margin-top:10px;
+    font-size:11.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--parchment-dim);
+    opacity:0.75;
+  }
+  .quote-author::before{ content:"— "; }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    text-align:center;
+    margin-top:70px;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--parchment-dim);
+    opacity:0.6;
+  }
+
+  @media (max-width:520px){
+    .wrap{padding:44px 16px 90px;}
+    .card{flex-direction:column; gap:4px; align-items:flex-start;}
+    .time{min-width:0;}
+    .timeline{padding-left:26px;}
+    .node{left:-26px;}
+    .quote-card{margin-left:26px; padding:18px 20px;}
+  }
+
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">discipline is a rhythm, not a rule</div>
+    <h1>Rhythm of <em>the Day</em></h1>
+    <p class="sub">A quiet structure for study, strength, and stillness — built around your own hours.</p>
+  </div>
+
+  <div class="toggle-row">
+    <div class="toggle">
+      <button id="btn-busy" class="active" onclick="showDay('busy')">Busy Days</button>
+      <button id="btn-holiday" onclick="showDay('holiday')">Holiday Days</button>
+    </div>
+  </div>
+
+  <div id="meta-busy" class="meta-row">
+    <div class="meta-item"><span class="num">7h15m</span><span class="lbl">Study</span></div>
+    <div class="meta-item"><span class="num">7h</span><span class="lbl">Sleep</span></div>
+    <div class="meta-item"><span class="num">Mon·Tue·Thu·Sat</span><span class="lbl">Days</span></div>
+  </div>
+  <div id="meta-holiday" class="meta-row hidden">
+    <div class="meta-item"><span class="num">9h30m</span><span class="lbl">Study</span></div>
+    <div class="meta-item"><span class="num">8h</span><span class="lbl">Sleep</span></div>
+    <div class="meta-item"><span class="num">Wed·Fri·Sun</span><span class="lbl">Days</span></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot" style="background:#c99a4b"></i>Run / Workout</span>
+    <span><i class="dot" style="background:#a9c19a"></i>Self-care</span>
+    <span><i class="dot" style="background:#587a5c"></i>Study</span>
+    <span><i class="dot" style="background:#b98a5e"></i>Meal</span>
+    <span><i class="dot" style="background:#a9633a"></i>Class</span>
+    <span><i class="dot" style="background:#a9709c"></i>Leisure</span>
+    <span><i class="dot" style="background:#4d5f85"></i>Sleep</span>
+  </div>
+
+  <!-- ================= BUSY DAY ================= -->
+  <div id="day-busy" class="timeline">
+    <div class="vine"></div>
+
+    <div class="block cat-run"><span class="node"></span><div class="card"><span class="time">5:00 – 5:30</span><span class="activity">Run — 5km</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-workout"><span class="node"></span><div class="card"><span class="time">5:30 – 6:00</span><span class="activity">Workout</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-care"><span class="node"></span><div class="card"><span class="time">6:00 – 6:30</span><span class="activity">Bath / Breakfast</span><span class="dur">30 min</span></div></div>
+
+    <div class="quote-block">
+      <div class="quote-card">
+        <p class="quote-text">We are what we repeatedly do. Excellence, then, is a habit.</p>
+        <p class="quote-author">Aristotle</p>
+      </div>
+    </div>
+
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">6:30 – 8:30</span><span class="activity">Study — Block 1</span><span class="dur">2h</span></div></div>
+    <div class="block cat-break"><span class="node"></span><div class="card"><span class="time">8:30 – 8:45</span><span class="activity">Break</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">8:45 – 11:30</span><span class="activity">Study — Block 2</span><span class="dur">2h 45m</span></div></div>
+    <div class="block cat-meal"><span class="node"></span><div class="card"><span class="time">11:30 – 12:00</span><span class="activity">Lunch</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">12:00 – 2:30</span><span class="activity">Study — Block 3</span><span class="dur">2h 30m</span></div></div>
+    <div class="block cat-rest"><span class="node"></span><div class="card"><span class="time">2:30 – 3:15</span><span class="activity">Rest</span><span class="dur">45 min</span></div></div>
+    <div class="block cat-care"><span class="node"></span><div class="card"><span class="time">3:15 – 3:35</span><span class="activity">Ready for class</span><span class="dur">20 min</span></div></div>
+
+    <div class="quote-block">
+      <div class="quote-card">
+        <p class="quote-text">Difficulties strengthen the mind as labor does the body.</p>
+        <p class="quote-author">Seneca</p>
+      </div>
+    </div>
+
+    <div class="block cat-class"><span class="node"></span><div class="card"><span class="time">3:50 – 8:30</span><span class="activity">Coaching class</span><span class="dur">4h 40m</span></div></div>
+    <div class="block cat-meal"><span class="node"></span><div class="card"><span class="time">8:30 – 9:00</span><span class="activity">Dinner</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-care"><span class="node"></span><div class="card"><span class="time">9:00 – 9:15</span><span class="activity">Bath</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">9:15 – 9:45</span><span class="activity">Revision / reading</span><span class="dur">30 min</span></div></div>
+
+    <div class="quote-block">
+      <div class="quote-card">
+        <p class="quote-text">You have power over your mind — not outside events.</p>
+        <p class="quote-author">Marcus Aurelius</p>
+      </div>
+    </div>
+
+    <div class="block cat-sleep"><span class="node"></span><div class="card"><span class="time">9:45 – 10:00</span><span class="activity">Wind down</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-sleep"><span class="node"></span><div class="card"><span class="time">10:00 PM</span><span class="activity">Sleep</span><span class="dur">7h</span></div></div>
+  </div>
+
+  <!-- ================= HOLIDAY DAY ================= -->
+  <div id="day-holiday" class="timeline hidden">
+    <div class="vine"></div>
+
+    <div class="block cat-run"><span class="node"></span><div class="card"><span class="time">5:00 – 5:30</span><span class="activity">Run — 5km</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-workout"><span class="node"></span><div class="card"><span class="time">5:30 – 6:00</span><span class="activity">Workout</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-care"><span class="node"></span><div class="card"><span class="time">6:00 – 6:30</span><span class="activity">Bath / Breakfast</span><span class="dur">30 min</span></div></div>
+
+    <div class="quote-block">
+      <div class="quote-card">
+        <p class="quote-text">A journey of a thousand miles begins with a single step.</p>
+        <p class="quote-author">Lao Tzu</p>
+      </div>
+    </div>
+
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">6:30 – 8:30</span><span class="activity">Study — Block 1 <span style="opacity:.6">(weak topic / backlog)</span></span><span class="dur">2h</span></div></div>
+    <div class="block cat-break"><span class="node"></span><div class="card"><span class="time">8:30 – 8:45</span><span class="activity">Break</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">8:45 – 10:45</span><span class="activity">Study — Block 2</span><span class="dur">2h</span></div></div>
+    <div class="block cat-break"><span class="node"></span><div class="card"><span class="time">10:45 – 11:00</span><span class="activity">Break</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">11:00 – 11:30</span><span class="activity">Study — Block 3</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-meal"><span class="node"></span><div class="card"><span class="time">11:30 – 12:15</span><span class="activity">Lunch</span><span class="dur">45 min</span></div></div>
+    <div class="block cat-rest"><span class="node"></span><div class="card"><span class="time">12:15 – 12:45</span><span class="activity">Rest</span><span class="dur">30 min</span></div></div>
+
+    <div class="quote-block">
+      <div class="quote-card">
+        <p class="quote-text">It does not matter how slowly you go, as long as you do not stop.</p>
+        <p class="quote-author">Confucius</p>
+      </div>
+    </div>
+
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">12:45 – 2:45</span><span class="activity">Study — Block 4 <span style="opacity:.6">(PYQs / problems)</span></span><span class="dur">2h</span></div></div>
+    <div class="block cat-break"><span class="node"></span><div class="card"><span class="time">2:45 – 3:00</span><span class="activity">Break</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">3:00 – 5:00</span><span class="activity">Study — Block 5</span><span class="dur">2h</span></div></div>
+    <div class="block cat-break"><span class="node"></span><div class="card"><span class="time">5:00 – 5:15</span><span class="activity">Break</span><span class="dur">15 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">5:15 – 6:15</span><span class="activity">Study — Block 6 <span style="opacity:.6">(backlog)</span></span><span class="dur">1h</span></div></div>
+
+    <div class="quote-block">
+      <div class="quote-card">
+        <p class="quote-text">No one is free who is not master of himself.</p>
+        <p class="quote-author">Epictetus</p>
+      </div>
+    </div>
+
+    <div class="block cat-leisure"><span class="node"></span><div class="card"><span class="time">6:15 – 7:00</span><span class="activity">Leisure — movie / photography / gaming</span><span class="dur">45 min</span></div></div>
+    <div class="block cat-care"><span class="node"></span><div class="card"><span class="time">7:00 – 7:30</span><span class="activity">Bath</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-meal"><span class="node"></span><div class="card"><span class="time">7:30 – 8:00</span><span class="activity">Dinner</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-study"><span class="node"></span><div class="card"><span class="time">8:00 – 8:30</span><span class="activity">Revision</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-sleep"><span class="node"></span><div class="card"><span class="time">8:30 – 9:00</span><span class="activity">Wind down</span><span class="dur">30 min</span></div></div>
+    <div class="block cat-sleep"><span class="node"></span><div class="card"><span class="time">9:00 PM</span><span class="activity">Sleep</span><span class="dur">8h</span></div></div>
+  </div>
+
+  <div class="footer">grown one day at a time</div>
+</div>
+
+<script>
+function showDay(which){
+  const busy = document.getElementById('day-busy');
+  const holiday = document.getElementById('day-holiday');
+  const mBusy = document.getElementById('meta-busy');
+  const mHoliday = document.getElementById('meta-holiday');
+  const btnBusy = document.getElementById('btn-busy');
+  const btnHoliday = document.getElementById('btn-holiday');
+
+  if(which === 'busy'){
+    busy.classList.remove('hidden'); holiday.classList.add('hidden');
+    mBusy.classList.remove('hidden'); mHoliday.classList.add('hidden');
+    btnBusy.classList.add('active'); btnHoliday.classList.remove('active');
+  } else {
+    holiday.classList.remove('hidden'); busy.classList.add('hidden');
+    mHoliday.classList.remove('hidden'); mBusy.classList.add('hidden');
+    btnHoliday.classList.add('active'); btnBusy.classList.remove('active');
+  }
+  // restart entrance animation
+  const blocks = document.querySelectorAll((which==='busy' ? '#day-busy' : '#day-holiday') + ' .block');
+  blocks.forEach((b,i)=>{
+    b.style.animation = 'none';
+    void b.offsetWidth;
+    b.style.animation = `rise 0.45s ease forwards`;
+    b.style.animationDelay = (i*0.02)+'s';
+  });
+}
+</script>
+</body>
+</html>
